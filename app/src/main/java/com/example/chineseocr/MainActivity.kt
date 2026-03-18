@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     private val PERMISSION_REQUEST = 200
 
     companion object {
+        private const val TAG = "MainActivity"
         private const val PREFS_NAME = "chinese_ocr_session"
         private const val KEY_LAST_TEXT = "last_text"
         private const val KEY_LAST_IMAGE_PATH = "last_image_path"
@@ -187,7 +189,8 @@ class MainActivity : AppCompatActivity() {
                 .edit()
                 .putString(KEY_LAST_IMAGE_PATH, imageFile.absolutePath)
                 .apply()
-        } catch (_: IOException) {
+        } catch (exception: IOException) {
+            Log.w(TAG, "Unable to persist selected image for session restore", exception)
         }
     }
 
