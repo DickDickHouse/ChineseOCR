@@ -1,3 +1,5 @@
+package com.example.chineseocr;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
@@ -6,8 +8,9 @@ import com.googlecode.tesseract.android.TessBaseAPI;
 
 public class OCRManager {
     private static final String TAG = "OCRManager";
-    private TessBaseAPI tessBaseAPI;
-    private String dataPath;
+
+    private final TessBaseAPI tessBaseAPI;
+    private final String dataPath;
 
     public OCRManager(Context context) {
         dataPath = context.getExternalFilesDir(null) + "/tesseract/";
@@ -16,7 +19,7 @@ public class OCRManager {
     }
 
     private void initializeTesseract() {
-        tessBaseAPI.init(dataPath, "chi_sim"); // Chinese Simplified
+        tessBaseAPI.init(dataPath, "chi_sim");
         Log.d(TAG, "Tesseract initialized with data path: " + dataPath);
     }
 

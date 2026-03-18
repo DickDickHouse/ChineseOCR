@@ -29,11 +29,26 @@
         android:layout_height="wrap_content"
         android:text="Save" />
 
-    <TextView
-        android:id="@+id/text_display"
+    <ImageView
+        android:id="@+id/image_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Image/Text Display Area"
-        android:layout_marginTop="16dp" />
+        android:layout_height="220dp"
+        android:layout_marginTop="16dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/selected_image"
+        android:scaleType="fitCenter" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/initial_text" />
+    </ScrollView>
 
 </LinearLayout>
