@@ -27,11 +27,22 @@ class FileExportManager {
     fun saveAsXlsx(textList: List<String>, filePath: String): Boolean {
         val workbook = XSSFWorkbook()
         val sheet = workbook.createSheet("Data")
+        val tableRows = textList.flatMap { parseRowsForSpreadsheet(it) }
 
-        for (i in textList.indices) {
+        for (i in tableRows.indices) {
             val row: Row = sheet.createRow(i)
-            val cell: Cell = row.createCell(0)
-            cell.setCellValue(textList[i])
+            val columns = tableRows[i]
+            for (j in columns.indices) {
+                val cell: Cell = row.createCell(j)
+                cell.setCellValue(columns[j])
+            }
+        }
+
+        if (tableRows.isNotEmpty()) {
+            val columnCount = tableRows.maxOf { it.size }
+            for (columnIndex in 0 until columnCount) {
+                sheet.autoSizeColumn(columnIndex)
+            }
         }
 
         return try {
@@ -65,5 +76,44 @@ class FileExportManager {
         return File(filePath).apply {
             parentFile?.mkdirs()
         }
+    }
+
+    private fun parseRowsForSpreadsheet(text: String): List<List<String>> {
+        val parsedRows = text
+            .lineSequence()
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .filterNot { isOutlineSeparator(it) }
+            .map { line ->
+                when {
+                    line.contains('\t') -> line.split('\t').map { it.trim() }
+                    hasTablePipe(line) -> line.split(Regex("[|│┃║]"))
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() }
+
+                    Regex("\\s{2,}").containsMatchIn(line) -> line.split(Regex("\\s{2,}"))
+                        .map { it.trim() }
+                        .filter { it.isNotEmpty() }
+
+                    else -> listOf(line)
+                }
+            }
+            .toList()
+
+        return if (parsedRows.isEmpty()) {
+            listOf(listOf(text))
+        } else {
+            parsedRows
+        }
+    }
+
+    private fun hasTablePipe(line: String): Boolean {
+        val pipeCount = line.count { it == '|' || it == '│' || it == '┃' || it == '║' }
+        return pipeCount >= 2
+    }
+
+    private fun isOutlineSeparator(line: String): Boolean {
+        val outlineChars = Regex("^[+\\-=_│┃║┌┐└┘├┤┬┴┼─═]+$")
+        return outlineChars.matches(line)
     }
 }
