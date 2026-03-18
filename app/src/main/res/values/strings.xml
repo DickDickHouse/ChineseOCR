@@ -1,1 +1,5 @@
-<resources>\n    <string name="app_name">Chinese OCR</string>\n    <string name="welcome_message">Welcome to Chinese OCR!</string>\n    <string name="scan_instruction">Scan a document to extract text.</string>\n    <string name="scan_button">Scan</string>\n    <string name="cancel_button">Cancel</string>\n    <string name="error_message">An error occurred, please try again.</string>\n</resources>
+<resources>
+    <string name="app_name">Chinese OCR</string>
+    <string name="initial_text">Image/Text Display Area</string>
+    <string name="selected_image">Selected image preview</string>
+</resources>

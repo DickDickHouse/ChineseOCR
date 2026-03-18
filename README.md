@@ -1,2 +1,4 @@
 # ChineseOCR
-For OCR
+Android OCR app for capturing or selecting an image, extracting Chinese text, and exporting the result.
+
+The app now restores the last selected image and recognized text when reopened, and exported files are written into the app's Documents/ChineseOCR directory.
