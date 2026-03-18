@@ -26,4 +26,4 @@ Android app prototype for Chinese OCR (Optical Character Recognition).
   - `settings.gradle.kts` uses invalid Kotlin DSL syntax (`include ":app"` instead of `include(":app")`)
   - `app/build.gradle.kts` is configured as JVM Kotlin, not Android application module
 - No automated tests (`app/src/test` and `app/src/androidTest` are not present)
-- README had no project status details before this recap
+- Project is currently at prototype stage and not ready for production release
