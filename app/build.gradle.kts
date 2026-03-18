@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.application") version "9.0.1"
+    id("com.android.application") version "9.0.0"
     kotlin("android") version "2.2.0"
 }
 
@@ -51,4 +51,11 @@ dependencies {
     implementation("org.apache.poi:poi-ooxml:5.4.1")
 
     testImplementation("junit:junit:4.13.2")
+}
+
+tasks.register<Copy>("exportDebugApkToRoot") {
+    dependsOn("assembleDebug")
+    from(layout.buildDirectory.file("outputs/apk/debug/app-debug.apk"))
+    into(rootProject.layout.projectDirectory)
+    rename { "ChineseOCR-debug.apk" }
 }
