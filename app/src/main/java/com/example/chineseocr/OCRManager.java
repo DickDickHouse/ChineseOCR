@@ -7,6 +7,8 @@ import android.util.Log;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OCRManager {
     private static final String TAG = "OCRManager";
@@ -25,28 +27,48 @@ public class OCRManager {
     }
 
     private void initializeTesseract() {
-        activeLanguage = resolveLanguageModel();
-        tessBaseAPI.init(dataPath, activeLanguage);
-        Log.d(TAG, "Tesseract initialized with data path: " + dataPath + ", language: " + activeLanguage);
+        List<String> languageCandidates = resolveLanguageCandidates();
+        for (String language : languageCandidates) {
+            if (tessBaseAPI.init(dataPath, language)) {
+                activeLanguage = language;
+                Log.d(TAG, "Tesseract initialized with data path: " + dataPath + ", language: " + activeLanguage);
+                return;
+            }
+            Log.w(TAG, "Failed to initialize Tesseract with language: " + language);
+        }
+
+        throw new IllegalStateException(
+                "Unable to initialize Tesseract. Expected traineddata under "
+                        + new File(dataPath, "tessdata").getAbsolutePath()
+        );
     }
 
-    private String resolveLanguageModel() {
+    private List<String> resolveLanguageCandidates() {
         File tessDataDir = new File(dataPath, "tessdata");
         boolean hasSimplified = new File(tessDataDir, LANGUAGE_SIMPLIFIED + ".traineddata").exists();
         boolean hasTraditional = new File(tessDataDir, LANGUAGE_TRADITIONAL + ".traineddata").exists();
+        List<String> candidates = new ArrayList<>();
 
         if (hasSimplified && hasTraditional) {
-            return LANGUAGE_COMBINED;
+            candidates.add(LANGUAGE_COMBINED);
+            candidates.add(LANGUAGE_SIMPLIFIED);
+            candidates.add(LANGUAGE_TRADITIONAL);
+            return candidates;
         }
         if (hasTraditional) {
-            return LANGUAGE_TRADITIONAL;
+            candidates.add(LANGUAGE_TRADITIONAL);
+            return candidates;
         }
         if (hasSimplified) {
-            return LANGUAGE_SIMPLIFIED;
+            candidates.add(LANGUAGE_SIMPLIFIED);
+            return candidates;
         }
 
-        Log.w(TAG, "No Chinese traineddata found in " + tessDataDir + ". Falling back to " + LANGUAGE_COMBINED);
-        return LANGUAGE_COMBINED;
+        Log.w(TAG, "No Chinese traineddata found in " + tessDataDir + ". Initialization may fail; trying known Chinese language fallbacks.");
+        candidates.add(LANGUAGE_SIMPLIFIED);
+        candidates.add(LANGUAGE_TRADITIONAL);
+        candidates.add(LANGUAGE_COMBINED);
+        return candidates;
     }
 
     public String recognizeText(Bitmap bitmap) {

@@ -9,6 +9,13 @@ import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 
 class FileExportManager {
+    companion object {
+        private const val MIN_PIPE_COUNT_FOR_TABLE = 2
+        private val TABLE_PIPE_CHARS = setOf('|', '│', '┃', '║')
+        private val TABLE_PIPE_SPLIT_REGEX = Regex("[|│┃║]")
+        private val MULTI_SPACE_REGEX = Regex("\\s{2,}")
+        private val OUTLINE_SEPARATOR_REGEX = Regex("^[+\\-=_│┃║┌┐└┘├┤┬┴┼─═]+$")
+    }
 
     fun saveAsTxt(text: String, filePath: String): Boolean {
         return try {
@@ -39,7 +46,7 @@ class FileExportManager {
         }
 
         if (tableRows.isNotEmpty()) {
-            val columnCount = tableRows.maxOf { it.size }
+            val columnCount = tableRows.maxOfOrNull { it.size } ?: 0
             for (columnIndex in 0 until columnCount) {
                 sheet.autoSizeColumn(columnIndex)
             }
@@ -87,11 +94,11 @@ class FileExportManager {
             .map { line ->
                 when {
                     line.contains('\t') -> line.split('\t').map { it.trim() }
-                    hasTablePipe(line) -> line.split(Regex("[|│┃║]"))
+                    hasTablePipe(line) -> line.split(TABLE_PIPE_SPLIT_REGEX)
                         .map { it.trim() }
                         .filter { it.isNotEmpty() }
 
-                    Regex("\\s{2,}").containsMatchIn(line) -> line.split(Regex("\\s{2,}"))
+                    MULTI_SPACE_REGEX.containsMatchIn(line) -> line.split(MULTI_SPACE_REGEX)
                         .map { it.trim() }
                         .filter { it.isNotEmpty() }
 
@@ -100,20 +107,15 @@ class FileExportManager {
             }
             .toList()
 
-        return if (parsedRows.isEmpty()) {
-            listOf(listOf(text))
-        } else {
-            parsedRows
-        }
+        return parsedRows
     }
 
     private fun hasTablePipe(line: String): Boolean {
-        val pipeCount = line.count { it == '|' || it == '│' || it == '┃' || it == '║' }
-        return pipeCount >= 2
+        val pipeCount = line.count { it in TABLE_PIPE_CHARS }
+        return pipeCount >= MIN_PIPE_COUNT_FOR_TABLE
     }
 
     private fun isOutlineSeparator(line: String): Boolean {
-        val outlineChars = Regex("^[+\\-=_│┃║┌┐└┘├┤┬┴┼─═]+$")
-        return outlineChars.matches(line)
+        return OUTLINE_SEPARATOR_REGEX.matches(line)
     }
 }
