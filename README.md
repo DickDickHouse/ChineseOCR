@@ -10,4 +10,4 @@ To build a debug APK into the repository root directory, run:
 
 The generated file will be:
 
-`/home/runner/work/ChineseOCR/ChineseOCR/ChineseOCR-debug.apk`
+`./ChineseOCR-debug.apk`
